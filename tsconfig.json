@@ -20,8 +20,9 @@
     "skipLibCheck": true,
     "types": ["node", "vitest/globals"],
     "allowJs": true,
+    "allowImportingTsExtensions": true,
     "rootDir": "."
   },
-  "include": ["agent/**/*", "lib/**/*", "evals/**/*", "tests/**/*"],
+  "include": ["agent/**/*", "evals/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist", "build", ".vercel"]
 }

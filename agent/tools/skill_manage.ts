@@ -1,5 +1,5 @@
 import { defineTool } from "eve/tools";
-import { deleteSkill, listSkills, patchSkill, writeSkill } from "../../lib/skills.js";
+import { deleteSkill, listSkills, patchSkill, writeSkill } from "../lib/skills.ts";
 
 /**
  * Create, update, or list user skills at runtime.

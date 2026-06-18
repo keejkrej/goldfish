@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { config, ensureDir } from "./config.js";
+import { config, ensureDir } from "./config.ts";
 
 /**
  * Long-term memory helpers for the agent.

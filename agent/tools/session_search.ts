@@ -1,5 +1,5 @@
 import { defineTool } from "eve/tools";
-import { store } from "../../lib/store.js";
+import { store } from "../lib/store.ts";
 
 /**
  * Full-text search over persisted session history.

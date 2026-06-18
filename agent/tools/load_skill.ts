@@ -1,5 +1,5 @@
 import { defineTool } from "eve/tools";
-import { listSkills, readSkill } from "../../lib/skills.js";
+import { listSkills, readSkill } from "../lib/skills.ts";
 
 /**
  * Load a skill's full instructions into the current turn.

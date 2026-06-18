@@ -2,8 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { config, ensureDir } from "../lib/config.js";
-import { deleteSkill, listSkills, readSkill, writeSkill } from "../lib/skills.js";
+import { config, ensureDir } from "../agent/lib/config.ts";
+import { deleteSkill, listSkills, readSkill, writeSkill } from "../agent/lib/skills.ts";
 
 describe("skills library", () => {
   let originalHome: string;

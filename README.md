@@ -7,7 +7,7 @@ A self-improving, continual-learning AI agent inspired by [Hermes Agent](https:/
 Goldfish demonstrates how Hermes' core "closed learning loop" can be expressed as filesystem-first eve primitives:
 
 - **Durable sessions** via Vercel Workflow (`agent/agent.ts`).
-- **Local Ollama backend** for text generation (`glm-5.2:cloud`) and vision (`gemma4:31b-cloud`), routed through Ollama's OpenAI-compatible `/v1` endpoint so no Vercel AI Gateway key is needed.
+- **Local Ollama backend** for text generation (`glm-5.2:cloud`) and vision (`gemma4:31b-cloud`). Text is routed through `@ai-sdk/openai` pointed at Ollama's OpenAI-compatible `/v1` endpoint, so no Vercel AI Gateway key is needed.
 - **Tool system** using eve defaults plus custom tools for memory, skill management, delegation, session search, web search, and image analysis.
 - **Markdown-first skills** in `agent/skills/` that the agent can load and create at runtime.
 - **Self-improvement** via a daily review schedule and explicit `memory` / `skill_manage` tools.
@@ -49,14 +49,14 @@ curl http://127.0.0.1:2000/eve/v1/session/<sessionId>/stream
 
 Goldfish is configured to call a local Ollama server:
 
-- Text model: `glm-5.2:cloud` (override with `EVE_MODEL`)
+- Text model: `glm-5.2:cloud` (override with `EVE_TEXT_MODEL`)
 - Vision model: `gemma4:31b-cloud` (override with `OLLAMA_IMAGE_MODEL`)
 - Web search: `https://ollama.com/api/web_search`
 
-It uses Ollama's **OpenAI-compatible endpoint** (`${OLLAMA_BASE_URL}/v1`) for
-text generation, so it does not require Vercel AI Gateway credentials. The
-`openai/` provider prefix is just an `ai` SDK convention; requests still go to
-your local Ollama server.
+Text generation uses `@ai-sdk/openai` pointed at Ollama's **OpenAI-compatible
+endpoint** (`${OLLAMA_BASE_URL}/v1`), which produces a real AI SDK `LanguageModel`
+instance. eve classifies that as an *external* provider, so requests go straight
+to your local Ollama server and no Vercel AI Gateway credentials are needed.
 
 Required environment variables:
 
@@ -72,10 +72,10 @@ ollama pull glm-5.2:cloud
 ollama pull gemma4:31b-cloud
 ```
 
-> **Note on provider compatibility:** eve ships with `ai` v7 (beta). The
-> `ollama/` model prefix can require Vercel AI Gateway credentials. To avoid
-> that, Goldfish defaults to the `openai/` provider prefix pointed at Ollama's
-> local `/v1` endpoint.
+> **Why not the `ollama/` prefix?** eve ships with `ai` v7 (beta). A bare model id
+> or `ollama/`/`openai/` model-string prefixes route through the Vercel AI Gateway,
+> which requires `AI_GATEWAY_API_KEY`. Passing a provider instance (`createOpenAI`)
+> instead classifies routing as `external` and bypasses the gateway entirely.
 
 ## Project layout
 
@@ -90,7 +90,7 @@ agent/
   subagents/            # Specialist child agents
   schedules/            # Recurring review job
   hooks/                # Lifecycle hooks (observability + memory bridge)
-lib/                    # Shared helpers (store, config, skills, memory)
+  lib/                  # Shared helpers (store, config, skills, memory)
 evals/                  # Eval cases
 tests/                  # Unit tests
 ```
@@ -134,7 +134,8 @@ Environment variables:
 | `OLLAMA_API_KEY` | unset | Required for Ollama web search |
 | `OLLAMA_IMAGE_MODEL` | `gemma4:31b-cloud` | Vision model for `analyze_image` |
 | `OLLAMA_WEB_SEARCH_URL` | `https://ollama.com/api/web_search` | Ollama web search endpoint |
-| `EVE_MODEL` | `openai/glm-5.2:cloud` | Text model for the agent |
+| `EVE_TEXT_MODEL` | `glm-5.2:cloud` | Text model id for the agent |
+| `GOLDFISH_SUBAGENT_TEXT_MODEL` | `glm-5.2:cloud` | Text model id for the coder subagent |
 | `OLLAMA_OPENAI_API_KEY` | `ollama` | Dummy API key for Ollama's `/v1` endpoint |
 | `GOLDFISH_HOME` | `~/.goldfish` | Local state directory |
 | `GOLDFISH_ENABLE_SELF_IMPROVEMENT` | `true` | Enable review schedule |
@@ -155,7 +156,7 @@ Deploy to Vercel:
 npx vercel
 ```
 
-For production, replace the JSON-backed store with a persistent database (e.g., Vercel Postgres) by implementing the `Store` interface in `lib/store.ts`.
+For production, replace the JSON-backed store with a persistent database (e.g., Vercel Postgres) by implementing the `Store` interface in `agent/lib/store.ts`.
 
 ## Sources
 

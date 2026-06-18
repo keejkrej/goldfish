@@ -6,7 +6,7 @@ import {
   readUser,
   writeMemory,
   writeUser,
-} from "../../lib/memory.js";
+} from "../lib/memory.ts";
 
 /**
  * Read or append to Goldfish's persistent memory.

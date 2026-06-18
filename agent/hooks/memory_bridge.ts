@@ -1,5 +1,5 @@
 import { defineHook } from "eve/hooks";
-import { store } from "../../lib/store.js";
+import { store } from "../lib/store.ts";
 
 /**
  * Persist eve session messages into Goldfish's local JSON store.
