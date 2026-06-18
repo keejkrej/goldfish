@@ -1,0 +1,30 @@
+{
+  "name": "goldfish",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Hermes-inspired self-improving agent built on Vercel eve",
+  "scripts": {
+    "dev": "eve dev",
+    "build": "eve build",
+    "start": "eve start",
+    "info": "eve info",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "eve": "^0.11.6",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "microsandbox": "^0.5.7",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

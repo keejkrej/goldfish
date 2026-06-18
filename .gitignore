@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.vercel/
+.DS_Store
+tmp/
+coverage/
+.claude/
+.eve/
+.output/
+.workflow-data/

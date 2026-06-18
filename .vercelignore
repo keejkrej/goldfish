@@ -1,0 +1,8 @@
+node_modules/
+.eve/
+.output/
+.workflow-data/
+.claude/
+tmp/
+coverage/
+*.log
