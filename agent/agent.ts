@@ -3,15 +3,16 @@ import { defineAgent } from "eve";
 /**
  * Goldfish runtime configuration.
  *
- * Defaults to a local Ollama instance for the text model. The model id and
- * base URL are configurable through environment variables.
+ * Defaults to a local Ollama instance for the text model. Ollama exposes an
+ * OpenAI-compatible `/v1` endpoint, so we use the `openai/` provider prefix
+ * and point it at the local server. This avoids requiring Vercel AI Gateway
+ * credentials.
  *
- * eve/ai-sdk resolves the `ollama/` provider prefix. For local Ollama, set
- * `OLLAMA_BASE_URL` (defaults to `http://localhost:11434`).
+ * Configure via `OLLAMA_BASE_URL` (defaults to `http://localhost:11434`).
  */
 export default defineAgent({
-  model: process.env.EVE_MODEL ?? "ollama/glm-5.2:cloud",
-  // Ollama model ids are not in the AI Gateway catalog, so tell eve the
+  model: process.env.EVE_MODEL ?? "openai/glm-5.2:cloud",
+  // Local Ollama model ids are not in the AI Gateway catalog, so tell eve the
   // context window size directly. Adjust if your local model has a different
   // context length.
   modelContextWindowTokens: 128_000,
@@ -20,8 +21,9 @@ export default defineAgent({
   },
   modelOptions: {
     providerOptions: {
-      ollama: {
-        baseURL: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434",
+      openai: {
+        baseURL: `${process.env.OLLAMA_BASE_URL ?? "http://localhost:11434"}/v1`,
+        apiKey: process.env.OLLAMA_OPENAI_API_KEY ?? "ollama",
       },
     },
   },

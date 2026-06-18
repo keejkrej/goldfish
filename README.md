@@ -7,7 +7,7 @@ A self-improving, continual-learning AI agent inspired by [Hermes Agent](https:/
 Goldfish demonstrates how Hermes' core "closed learning loop" can be expressed as filesystem-first eve primitives:
 
 - **Durable sessions** via Vercel Workflow (`agent/agent.ts`).
-- **Local Ollama backend** for text generation (`glm-5.2:cloud`) and vision (`gemma4:31b-cloud`).
+- **Local Ollama backend** for text generation (`glm-5.2:cloud`) and vision (`gemma4:31b-cloud`), routed through Ollama's OpenAI-compatible `/v1` endpoint so no Vercel AI Gateway key is needed.
 - **Tool system** using eve defaults plus custom tools for memory, skill management, delegation, session search, web search, and image analysis.
 - **Markdown-first skills** in `agent/skills/` that the agent can load and create at runtime.
 - **Self-improvement** via a daily review schedule and explicit `memory` / `skill_manage` tools.
@@ -23,7 +23,7 @@ npm install
 
 # 2. Copy environment template and add OLLAMA_API_KEY
 cp .env.example .env
-# edit .env — set OLLAMA_API_KEY and adjust OLLAMA_BASE_URL if needed
+# edit .env — set OLLAMA_API_KEY for web search and adjust OLLAMA_BASE_URL if needed
 
 # 3. Run the agent dev server
 npm run dev
@@ -53,10 +53,17 @@ Goldfish is configured to call a local Ollama server:
 - Vision model: `gemma4:31b-cloud` (override with `OLLAMA_IMAGE_MODEL`)
 - Web search: `https://ollama.com/api/web_search`
 
+It uses Ollama's **OpenAI-compatible endpoint** (`${OLLAMA_BASE_URL}/v1`) for
+text generation, so it does not require Vercel AI Gateway credentials. The
+`openai/` provider prefix is just an `ai` SDK convention; requests still go to
+your local Ollama server.
+
 Required environment variables:
 
 - `OLLAMA_API_KEY` — required for web search; get a key at https://ollama.com/settings/keys.
 - `OLLAMA_BASE_URL` — defaults to `http://localhost:11434`.
+- `OLLAMA_OPENAI_API_KEY` — defaults to `ollama`; Ollama ignores the key, but the
+  OpenAI provider requires a non-empty value.
 
 Make sure your local Ollama server is running and has the requested models pulled:
 
@@ -65,10 +72,10 @@ ollama pull glm-5.2:cloud
 ollama pull gemma4:31b-cloud
 ```
 
-> **Note on provider compatibility:** eve ships with `ai` v7 (beta). If the
-> `ollama/` model prefix does not resolve at runtime, install a compatible
-> Ollama provider package that matches your project's `ai` version, or set
-> `EVE_MODEL` to a model string your AI SDK setup can resolve.
+> **Note on provider compatibility:** eve ships with `ai` v7 (beta). The
+> `ollama/` model prefix can require Vercel AI Gateway credentials. To avoid
+> that, Goldfish defaults to the `openai/` provider prefix pointed at Ollama's
+> local `/v1` endpoint.
 
 ## Project layout
 
@@ -127,7 +134,8 @@ Environment variables:
 | `OLLAMA_API_KEY` | unset | Required for Ollama web search |
 | `OLLAMA_IMAGE_MODEL` | `gemma4:31b-cloud` | Vision model for `analyze_image` |
 | `OLLAMA_WEB_SEARCH_URL` | `https://ollama.com/api/web_search` | Ollama web search endpoint |
-| `EVE_MODEL` | `ollama/glm-5.2:cloud` | Text model for the agent |
+| `EVE_MODEL` | `openai/glm-5.2:cloud` | Text model for the agent |
+| `OLLAMA_OPENAI_API_KEY` | `ollama` | Dummy API key for Ollama's `/v1` endpoint |
 | `GOLDFISH_HOME` | `~/.goldfish` | Local state directory |
 | `GOLDFISH_ENABLE_SELF_IMPROVEMENT` | `true` | Enable review schedule |
 | `EVE_MCP_URL` | unset | Enable MCP client when set |
